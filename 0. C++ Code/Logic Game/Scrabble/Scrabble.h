@@ -9,13 +9,9 @@
 #ifndef Scrabble_h
 #define Scrabble_h
 
-#include <vector>
-#include "BoardPosition.h"
+
 using namespace std;
 
-const int BOARD_COLS_AND_ROWS = 15;
 
-
-typedef vector<BoardPosition> VectorOfPositions;
 
 #endif /* Scrabble_h */

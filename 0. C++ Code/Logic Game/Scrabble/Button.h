@@ -17,6 +17,7 @@ public:
         NONE
     } ButtonState;
 
+    Button();
     Button(IMAGE_NAME state_normal,
            IMAGE_NAME state_pressed,
            int posX, int posY,
@@ -24,8 +25,8 @@ public:
 
     ~Button();
 
-    bool update ( int mousePosX, int mousePosY, bool mouseIsPressed);
-    void render ();
+    bool update(int mousePosX, int mousePosY, bool mouseIsPressed);
+    void render();
 
 private:
     ButtonState m_eCurrentState;

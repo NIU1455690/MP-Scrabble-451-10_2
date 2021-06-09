@@ -2,7 +2,7 @@
 //  Dictionary.hpp
 #pragma once
 
-#include "Scrabble.h"
+#include "../Scrabble_Defs.h"
 #include <stdio.h>
 #include <iostream>
 
