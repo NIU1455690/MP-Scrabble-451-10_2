@@ -1,0 +1,14 @@
+﻿  ScrabbleGame.cpp
+C:\Users\alexd\source\repos\MP-Scrabble-451-10_2\0. C++ Code\Logic Game\Scrabble_Defs.h(27,45): warning C4244: 'inicializando': conversión de 'double' a 'int'; posible pérdida de datos
+C:\Users\alexd\source\repos\MP-Scrabble-451-10_2\0. C++ Code\Logic Game\Scrabble\ScrabbleGame.cpp(20,19): warning C4244: 'inicializando': conversión de 'double' a 'int'; posible pérdida de datos
+C:\Users\alexd\source\repos\MP-Scrabble-451-10_2\0. C++ Code\Logic Game\Scrabble\ScrabbleGame.cpp(34,87): warning C4244: 'argumento': conversión de 'int' a 'float'; posible pérdida de datos
+C:\Users\alexd\source\repos\MP-Scrabble-451-10_2\0. C++ Code\Logic Game\Scrabble\ScrabbleGame.cpp(34,81): warning C4244: 'argumento': conversión de 'int' a 'float'; posible pérdida de datos
+C:\Users\alexd\source\repos\MP-Scrabble-451-10_2\0. C++ Code\Logic Game\Scrabble\ScrabbleGame.cpp(42,76): warning C4305: 'argumento': truncamiento de 'double' a 'float'
+C:\Users\alexd\source\repos\MP-Scrabble-451-10_2\0. C++ Code\Logic Game\Scrabble\ScrabbleGame.cpp(46,88): warning C4244: 'argumento': conversión de 'int' a 'float'; posible pérdida de datos
+C:\Users\alexd\source\repos\MP-Scrabble-451-10_2\0. C++ Code\Logic Game\Scrabble\ScrabbleGame.cpp(46,77): warning C4244: 'argumento': conversión de 'int' a 'float'; posible pérdida de datos
+C:\Users\alexd\source\repos\MP-Scrabble-451-10_2\0. C++ Code\Logic Game\Scrabble\ScrabbleGame.cpp(50,89): warning C4244: 'argumento': conversión de 'int' a 'float'; posible pérdida de datos
+C:\Users\alexd\source\repos\MP-Scrabble-451-10_2\0. C++ Code\Logic Game\Scrabble\ScrabbleGame.cpp(50,78): warning C4244: 'argumento': conversión de 'int' a 'float'; posible pérdida de datos
+  main.cpp
+C:\Users\alexd\source\repos\MP-Scrabble-451-10_2\0. C++ Code\Logic Game\Scrabble_Defs.h(27,45): warning C4244: 'inicializando': conversión de 'double' a 'int'; posible pérdida de datos
+  Generando código...
+  MP_Practica.vcxproj -> C:\Users\alexd\source\repos\MP-Scrabble-451-10_2\2. Platforms\0. Windows Desktop\Program\MP_Practica.exe
