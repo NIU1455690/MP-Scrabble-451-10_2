@@ -51,7 +51,8 @@ Tile LettersBag::getLetter()
 {
 	Tile tile;
 	int random;
-	
+
+	srand(time(NULL));
 	random = (rand() % m_letters.size());
 	tile = m_letters[random];
 

@@ -15,15 +15,12 @@ ScrabbleGame::ScrabbleGame()
 {
 	m_lettersBag = LettersBag();
 	m_board = Board();
+	m_currentPlayer = 0;
 
 	// Inicialització jugadors i fitxes
 	for (int i = 0; i < NUM_PLAYERS; i++)
 	{
-		for (int j = 0; i < MAX_TILES; i++)
-		{
-			Tile tile = m_lettersBag.getLetter();
-			m_players[i].setTile(tile);
-		}
+		m_players[i] = Player(m_lettersBag);
 		
 	}
 
@@ -32,9 +29,11 @@ ScrabbleGame::ScrabbleGame()
 	int btn_size_h = 100;
 	int btn_pos_x = SCREEN_SIZE_X * 0.5 - btn_size_w * 0.5;
 	int btn_pos_y = SCREEN_SIZE_Y - btn_size_h;
+	int btn_recall_pos_x = btn_pos_x - btn_size_w * 0.75;
+	int btn_shuffle_pos_x = btn_pos_x + btn_size_w;
 
-	m_buttonRecall = Button(IMAGE_BUTTON_RECALL_NORMAL, IMAGE_BUTTON_RECALL_PRESSED, btn_pos_x, btn_pos_y, btn_size_w, btn_size_h);
-	m_buttonShuffle = Button(IMAGE_BUTTON_SHUFFLE_NORMAL, IMAGE_BUTTON_SHUFFLE_PRESSED, btn_pos_x, btn_pos_y, btn_size_w, btn_size_h);
+	m_buttonRecall = Button(IMAGE_BUTTON_RECALL_NORMAL, IMAGE_BUTTON_RECALL_PRESSED, btn_recall_pos_x, btn_pos_y, btn_size_w, btn_size_h);
+	m_buttonShuffle = Button(IMAGE_BUTTON_SHUFFLE_NORMAL, IMAGE_BUTTON_SHUFFLE_PRESSED, btn_shuffle_pos_x, btn_pos_y, btn_size_w, btn_size_h);
 	m_buttonSend = Button(IMAGE_BUTTON_SEND_NORMAL, IMAGE_BUTTON_SEND_PRESSED, btn_pos_x, btn_pos_y, btn_size_w, btn_size_h);
 	m_buttonPass = Button(IMAGE_BUTTON_PASS_NORMAL, IMAGE_BUTTON_PASS_PRESSED, btn_pos_x, btn_pos_y, btn_size_w, btn_size_h);
 	btn_isPressed = false;
@@ -151,11 +150,30 @@ void ScrabbleGame::updateAndRender(int mousePosX, int mousePosY, bool mouseStatu
 	std::string msg = "PosX: " + to_string(mousePosX) + ", PosY: " + to_string(mousePosY);
 	GraphicManager::getInstance()->drawFont(FONT_WHITE_30, 10, 10, 0.6, msg);
 
+	m_buttonRecall.render();
+	m_buttonShuffle.render();
 	m_buttonSend.render();
+	
+	m_buttonRecall.update(mousePosX, mousePosY, mouseStatus);
+	m_buttonShuffle.update(mousePosX, mousePosY, mouseStatus);
 
 	if (m_buttonSend.update(mousePosX, mousePosY, mouseStatus)) 
 	{
 		draw_tiles = !draw_tiles;
 	}
 
+	m_players[m_currentPlayer].renderTiles();
+	m_players[m_currentPlayer].updateTiles(mousePosX, mousePosY, mouseStatus);
+}
+
+void ScrabbleGame::nextTurn()
+{
+	if (m_currentPlayer == 2)
+	{
+		m_currentPlayer = 0;
+	}
+	else
+	{
+		m_currentPlayer++;
+	}
 }

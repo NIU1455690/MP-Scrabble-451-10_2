@@ -21,6 +21,7 @@ public:
 	int const getY() { return m_posY; }
 	bool const isEmpty() { return m_isEmpty; }
 	bool const isOnBoard() { return m_isOnBoard; }
+	Tile const getTile() { return m_tile; }
 	BoardPosition const getBoardPosition() { return m_boardPosition; }
 	void setTile(const Tile& tile) { m_tile = tile; }
 	void setX(int posX) { m_posX = posX; }

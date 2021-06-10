@@ -1,14 +1,20 @@
 //
-//  Scrabble.h
+//  ScrabbleDefs.h
 //  MP_Practica
 //
 //  Created by Enric Vergara on 14/03/2021.
 //  Copyright © 2021 CompiledCreations. All rights reserved.
 //
 
-#ifndef Scrabble_h
-#define Scrabble_h
+#ifndef ScrabbleDefs_h
+#define ScrabbleDefs_h
 
+#include <vector>
+#include "BoardPosition.h"
+
+using namespace std;
+
+typedef vector<BoardPosition> VectorOfPositions;
 
 // Screen size (W,H)=(750,850)
 const int SCREEN_SIZE_X			= 750; 
@@ -28,4 +34,4 @@ const int BOARD_POS_X = SCREEN_SIZE_X * 0.5 - BOARD_SIZE * 0.5;
 const int BOARD_POS_Y = 40;
 
 
-#endif /* Scrabble_h */
+#endif /* ScrabbleDefs_h */

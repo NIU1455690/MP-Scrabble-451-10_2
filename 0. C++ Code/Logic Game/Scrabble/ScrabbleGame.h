@@ -15,7 +15,7 @@
 #include "Player.h"
 #include "LettersBag.h"
 
-const int NUM_PLAYERS = 4;
+const int NUM_PLAYERS = 3;
 
 class ScrabbleGame
 {
@@ -23,7 +23,7 @@ public:
     ScrabbleGame();
     ~ScrabbleGame();
     void updateAndRender(int mousePosX, int mousePosY, bool mouseStatus);
-
+    void nextTurn();
 private:
     Board m_board;
     Player m_players[NUM_PLAYERS];
