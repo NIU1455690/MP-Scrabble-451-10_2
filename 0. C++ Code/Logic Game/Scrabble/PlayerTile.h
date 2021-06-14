@@ -16,14 +16,14 @@ class PlayerTile
 {
 public:
 	PlayerTile();
-	PlayerTile(const Tile& tile, int nTile);
+	PlayerTile(Tile& tile, int nTile);
 	int const getX() { return m_posX; }
 	int const getY() { return m_posY; }
 	bool const isEmpty() { return m_isEmpty; }
 	bool const isOnBoard() { return m_isOnBoard; }
-	Tile const getTile() { return m_tile; }
+	Tile& getTile() { return m_tile; }
 	BoardPosition const getBoardPosition() { return m_boardPosition; }
-	void setTile(const Tile& tile) { m_tile = tile; }
+	void setTile(Tile& tile) { m_tile = tile; }
 	void setX(int posX) { m_posX = posX; }
 	void setY(int posY) { m_posY = posY; }
 	void setEmpty(bool empty) { m_isEmpty = empty; }

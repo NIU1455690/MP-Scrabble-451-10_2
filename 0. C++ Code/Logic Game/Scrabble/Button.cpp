@@ -29,25 +29,30 @@ Button::~Button(){
 bool Button::update(int mousePosX, int mousePosY, bool mouseIsPressed) {
 
 	bool presionat = false;
-	//TODO 4.1: Implementar la programació del update...
-	if (mousePosX > m_iPosX && mousePosX < m_iPosX + m_iWidth && mousePosY > m_iPosY && mousePosY < m_iPosY + m_iHeight) {
-		if (mouseIsPressed)
-		{
-			m_eCurrentState = PRESSED;
+
+	if (m_eCurrentState != NONE)
+	{
+		//TODO 4.1: Implementar la programació del update...
+		if (mousePosX > m_iPosX && mousePosX < m_iPosX + m_iWidth && mousePosY > m_iPosY && mousePosY < m_iPosY + m_iHeight) {
+			if (mouseIsPressed)
+			{
+				m_eCurrentState = PRESSED;
+			}
+			else
+			{
+				if (m_eCurrentState == PRESSED)
+				{
+					m_eCurrentState = NORMAL;
+					presionat = true;
+				}
+			}
 		}
 		else
 		{
-			if (m_eCurrentState == PRESSED)
-			{
-				m_eCurrentState = NORMAL;
-				presionat = true;
-			}
+			m_eCurrentState = NORMAL;
 		}
 	}
-	else
-	{
-		m_eCurrentState = NORMAL;
-	}
+	
     return presionat; //Això s'ha de modificar, ho deixem posat per tal que compili sense errors.
 }
 
@@ -61,4 +66,9 @@ void Button::render() {
 	{
 		GraphicManager::getInstance()->drawSprite(m_eStatePressed, m_iPosX, m_iPosY);
 	}
+}
+
+void Button::setY(int y)
+{
+	m_iPosY = y;
 }

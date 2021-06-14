@@ -1,10 +1,17 @@
-﻿  Player.cpp
+﻿  ScrabbleGame.cpp
 C:\Users\alexd\source\repos\MP-Scrabble-451-10_2\0. C++ Code\Logic Game\Scrabble_Defs.h(33,45): warning C4244: 'inicializando': conversión de 'double' a 'int'; posible pérdida de datos
 C:\Users\alexd\source\repos\MP-Scrabble-451-10_2\0. C++ Code\Logic Game\Scrabble\PlayerTile.h(20,28): warning C4244: 'return': conversión de 'float' a 'const int'; posible pérdida de datos
 C:\Users\alexd\source\repos\MP-Scrabble-451-10_2\0. C++ Code\Logic Game\Scrabble\PlayerTile.h(21,28): warning C4244: 'return': conversión de 'float' a 'const int'; posible pérdida de datos
 C:\Users\alexd\source\repos\MP-Scrabble-451-10_2\0. C++ Code\Logic Game\Scrabble\PlayerTile.h(27,33): warning C4244: '=': conversión de 'int' a 'float'; posible pérdida de datos
 C:\Users\alexd\source\repos\MP-Scrabble-451-10_2\0. C++ Code\Logic Game\Scrabble\PlayerTile.h(28,33): warning C4244: '=': conversión de 'int' a 'float'; posible pérdida de datos
-C:\Users\alexd\source\repos\MP-Scrabble-451-10_2\0. C++ Code\Logic Game\Scrabble\Player.cpp(27,6): warning C4101: 'aux_currentLetter': variable local sin referencia
-C:\Users\alexd\source\repos\MP-Scrabble-451-10_2\0. C++ Code\Logic Game\Scrabble\Player.cpp(75,92): warning C4244: 'argumento': conversión de 'int' a 'float'; posible pérdida de datos
-C:\Users\alexd\source\repos\MP-Scrabble-451-10_2\0. C++ Code\Logic Game\Scrabble\Player.cpp(75,73): warning C4244: 'argumento': conversión de 'int' a 'float'; posible pérdida de datos
+C:\Users\alexd\source\repos\MP-Scrabble-451-10_2\0. C++ Code\Logic Game\Scrabble\ScrabbleGame.cpp(30,16): warning C4244: 'inicializando': conversión de 'double' a 'int'; posible pérdida de datos
+C:\Users\alexd\source\repos\MP-Scrabble-451-10_2\0. C++ Code\Logic Game\Scrabble\ScrabbleGame.cpp(32,23): warning C4244: 'inicializando': conversión de 'double' a 'int'; posible pérdida de datos
+C:\Users\alexd\source\repos\MP-Scrabble-451-10_2\0. C++ Code\Logic Game\Scrabble\ScrabbleGame.cpp(70,121): warning C4305: 'argumento': truncamiento de 'double' a 'float'
+C:\Users\alexd\source\repos\MP-Scrabble-451-10_2\0. C++ Code\Logic Game\Scrabble\ScrabbleGame.cpp(70,94): warning C4244: 'argumento': conversión de 'int' a 'float'; posible pérdida de datos
+C:\Users\alexd\source\repos\MP-Scrabble-451-10_2\0. C++ Code\Logic Game\Scrabble\ScrabbleGame.cpp(73,84): warning C4305: 'argumento': truncamiento de 'double' a 'float'
+C:\Users\alexd\source\repos\MP-Scrabble-451-10_2\0. C++ Code\Logic Game\Scrabble\ScrabbleGame.cpp(87,67): warning C4244: 'argumento': conversión de 'int' a 'float'; posible pérdida de datos
+C:\Users\alexd\source\repos\MP-Scrabble-451-10_2\0. C++ Code\Logic Game\Scrabble\ScrabbleGame.cpp(87,61): warning C4244: 'argumento': conversión de 'int' a 'float'; posible pérdida de datos
+C:\Users\alexd\source\repos\MP-Scrabble-451-10_2\0. C++ Code\Logic Game\Scrabble\ScrabbleGame.cpp(155,89): warning C4305: 'argumento': truncamiento de 'double' a 'float'
+C:\Users\alexd\source\repos\MP-Scrabble-451-10_2\0. C++ Code\Logic Game\Scrabble\ScrabbleGame.cpp(159,91): warning C4305: 'argumento': truncamiento de 'double' a 'float'
+C:\Users\alexd\source\repos\MP-Scrabble-451-10_2\0. C++ Code\Logic Game\Scrabble\ScrabbleGame.cpp(201,75): warning C4305: 'argumento': truncamiento de 'double' a 'float'
   MP_Practica.vcxproj -> C:\Users\alexd\source\repos\MP-Scrabble-451-10_2\2. Platforms\0. Windows Desktop\Program\MP_Practica.exe

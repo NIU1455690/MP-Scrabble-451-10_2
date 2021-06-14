@@ -65,13 +65,17 @@ public:
     CurrentWordResult checkCurrentWord(int& points);
     Alignment currentWordAlignment();
     string readWordFromVector(vector<BoardPosition>& vector);
+    char getLetterFromTile(BoardPosition& boardPos) { return m_cells[boardPos.getRow()][boardPos.getCol()].getTile().getLetter(); }
     bool currentWordConsecutive(Alignment& alineacion, int& min, int& max, bool& interseccion);
-    bool currentWordConnected(Alignment& alineacion, int min, int max, vector<BoardPosition>& conexiones, bool conectada);
+    bool currentWordConnected(Alignment& alineacion, int min, int max, vector<BoardPosition>& conexiones);
+    bool isTileEmpty(BoardPosition& boardPos) { return m_cells[boardPos.getRow()][boardPos.getCol()].getEmpty(); }
     int pointsWord(vector<BoardPosition>& word);
     int pointsWords();
     void newWords(Alignment& alineacion, int& min, int& max, vector<BoardPosition>& conexiones);
     void sendCurrentWordToBoard();
     void removeCurrentWord();
+    void removeTile(BoardPosition& boardPos);
+
 private:
     Cell m_cells[BOARD_COLS_AND_ROWS][BOARD_COLS_AND_ROWS];
     Dictionary m_dictionary;

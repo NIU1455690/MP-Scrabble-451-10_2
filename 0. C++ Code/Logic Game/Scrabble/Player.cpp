@@ -4,6 +4,9 @@
 //
 
 #include "Player.h"
+#include "iostream"
+
+using namespace std;
 
 Player::Player(LettersBag& lettersBag)
 {
@@ -18,15 +21,41 @@ Player::Player(LettersBag& lettersBag)
 	}
 }
 
-void Player::updateTiles(int mousePosX, int mousePosY, bool mouseIsPressed)
+bool Player::drawTiles(LettersBag& lettersBag)
+{
+	int tilePos = SCREEN_SIZE_X / MAX_TILES;
+	int i = 0;
+	while (!lettersBag.isEmpty() && i < MAX_TILES)
+	{
+		if (m_tiles[i].isOnBoard())
+		{
+			Tile tile = lettersBag.getLetter();
+			m_tiles[i].setTile(tile);
+			m_tiles[i].setEmpty(false);
+			m_tiles[i].setOnBoard(false);
+			m_tiles[i].setX(tilePos * i);
+			m_tiles[i].setY(BOARD_POS_Y + BOARD_SIZE);
+		}
+		else
+		{
+			i++;
+		}
+	}
+
+	return lettersBag.isEmpty();
+}
+
+bool Player::updateTiles(int mousePosX, int mousePosY, bool mouseIsPressed, Board& board)
 {
 	int tileSize = 107;
+	int tileSizeSmall = BOARD_TILE_SIZE;
 	int tilePos = SCREEN_SIZE_X / MAX_TILES;
 	int minLletresY = BOARD_POS_Y + BOARD_SIZE;
 	int maxLletresY = BOARD_POS_Y + BOARD_SIZE + tileSize;
 	int aux_currentLetter;
+	int currentLetterCol = 0;
+	int currentLetterRow = 0;
 
-	//TODO 4.1: Implementar la programació del update...
 	if (!m_movingLetter)
 	{
 		if (mousePosY > minLletresY && mousePosY < maxLletresY) {
@@ -38,6 +67,35 @@ void Player::updateTiles(int mousePosX, int mousePosY, bool mouseIsPressed)
 					m_movingLetter = true;
 				}
 			}
+		else if (mousePosY < minLletresY && mousePosY > BOARD_POS_Y && mousePosX > BOARD_POS_X && mousePosX < (BOARD_POS_X + (tileSizeSmall * BOARD_COLS_AND_ROWS)))
+		{
+			if (mouseIsPressed)
+			{
+				currentLetterCol = (mousePosX / tileSizeSmall) - 2;
+				currentLetterRow = (mousePosY / tileSizeSmall) - 1;
+				int currentLetterCol0 = BOARD_POS_X + (currentLetterCol * tileSizeSmall);
+				int currentLetterRow0 = BOARD_POS_Y + (currentLetterRow * tileSizeSmall);
+
+				bool encontrada = false;
+				int i = 0;
+				while (!encontrada && i < MAX_TILES)
+				{
+					if (currentLetterCol0 == m_tiles[i].getX() && currentLetterRow0 == m_tiles[i].getY())
+					{
+						BoardPosition bp = BoardPosition(currentLetterCol, currentLetterRow);
+						m_currentLetter = i;
+						m_tiles[m_currentLetter].setOnBoard(false);
+						m_movingLetter = true;
+						encontrada = true;
+						board.removeTile(bp);
+					}
+					else
+					{
+						i++;
+					}
+				}
+			}
+		}
 	}
 	else
 	{
@@ -48,12 +106,123 @@ void Player::updateTiles(int mousePosX, int mousePosY, bool mouseIsPressed)
 		}
 		else
 		{
-			m_tiles[m_currentLetter].setX(tilePos * m_currentLetter);
-			m_tiles[m_currentLetter].setY(minLletresY);
-			m_tiles[m_currentLetter].setEmpty(false);
-			m_movingLetter = false;
+			if (mousePosY < minLletresY && mousePosY > BOARD_POS_Y && mousePosX > BOARD_POS_X && mousePosX < BOARD_POS_X + (tileSizeSmall * BOARD_COLS_AND_ROWS)) // Se suelta ficha dentro del tablero, colocamos ficha en board
+			{
+				currentLetterCol = (mousePosX / tileSizeSmall) - 2;
+				currentLetterRow = (mousePosY / tileSizeSmall) - 1;
+				
+				BoardPosition bp = BoardPosition(currentLetterCol, currentLetterRow);
+				if (board.isTileEmpty(bp))
+				{
+					m_tiles[m_currentLetter].setX(BOARD_POS_X + (currentLetterCol * tileSizeSmall));
+					m_tiles[m_currentLetter].setY(BOARD_POS_Y + (currentLetterRow * tileSizeSmall));
+					m_tiles[m_currentLetter].setOnBoard(true);
+					m_tiles[m_currentLetter].setEmpty(true);
+					m_tiles[m_currentLetter].setBoardPosition(bp);
+					board.setTile(m_tiles[m_currentLetter].getTile(), m_tiles[m_currentLetter].getBoardPosition());
+				}
+				else
+				{
+					m_tiles[m_currentLetter].setX(tilePos * m_currentLetter);
+					m_tiles[m_currentLetter].setY(minLletresY);
+					m_tiles[m_currentLetter].setEmpty(false);
+					m_tiles[m_currentLetter].setOnBoard(false);
+				}
+				m_movingLetter = false;
+				
+			}
+			else
+			{
+				m_tiles[m_currentLetter].setX(tilePos * m_currentLetter);
+				m_tiles[m_currentLetter].setY(minLletresY);
+				m_tiles[m_currentLetter].setEmpty(false);
+				m_tiles[m_currentLetter].setOnBoard(false);
+				m_movingLetter = false;
+			}
 		}
 	}
+
+	return tileInBoard();
+
+}
+
+void Player::reOrder()
+{
+
+	vector<PlayerTile> auxTiles;
+	int nAuxTiles = MAX_TILES;
+	int indice = 0;
+	int nTiles = 0;
+
+	for (int i = 0; i < MAX_TILES; i++)
+	{
+		auxTiles.push_back(m_tiles[i]);
+	}
+
+	while (nAuxTiles > 0)
+	{
+		indice = randomInRange(0, nAuxTiles - 1);
+		nAuxTiles--;
+		m_tiles[nTiles] = auxTiles[indice];
+		nTiles++;
+
+		auxTiles.erase(auxTiles.begin() + indice);
+	}
+
+	int minLletresY = BOARD_POS_Y + BOARD_SIZE;
+	int tilePos = SCREEN_SIZE_X / MAX_TILES;
+
+	for (int i = 0; i < MAX_TILES; i++)
+	{
+		if (!m_tiles[i].isOnBoard()) {
+			m_tiles[i].setX(tilePos * i);
+			m_tiles[i].setY(minLletresY);
+			m_tiles[i].setEmpty(false);
+			m_movingLetter = false;
+			m_tiles[i].setOnBoard(false);
+		}
+	}
+}
+
+bool Player::tileInBoard()
+{
+	bool tilePlayed = false;
+	int i = 0;
+
+	while (!tilePlayed && i < MAX_TILES)
+	{
+		if (m_tiles[i].isOnBoard()) tilePlayed = true;
+		i++;
+	}
+
+	return tilePlayed;
+}
+
+void Player::reCallTiles(Board& board)
+{
+	int minLletresY = BOARD_POS_Y + BOARD_SIZE;
+	int tilePos = SCREEN_SIZE_X / MAX_TILES;
+	int currentLetterCol;
+	int currentLetterRow;
+	for (int i = 0; i < MAX_TILES; i++)
+	{
+		if (m_tiles[i].isOnBoard())
+		{
+			m_tiles[i].setX(tilePos * i);
+			m_tiles[i].setY(minLletresY);
+			m_tiles[i].setEmpty(false);
+			m_movingLetter = false;
+			m_tiles[i].setOnBoard(false);
+			BoardPosition bp = m_tiles[i].getBoardPosition();
+			board.removeTile(bp);
+		}
+	}
+	
+}
+
+int Player::randomInRange(int minimo, int maximo)
+{
+	return minimo + rand() / (RAND_MAX / (maximo - minimo + 1) + 1);
 }
 
 void Player::renderTiles()
@@ -76,179 +245,4 @@ void Player::renderTiles()
 		
 	}
 	
-}
-
-IMAGE_NAME Player::letterToImageName(char letter, bool big)
-{
-	IMAGE_NAME letterImage;
-	if (big)
-	{
-		switch (letter)
-		{
-		case 'a':
-			letterImage = IMAGE_LETTER_A_BIG;
-			break;
-		case 'b':
-			letterImage = IMAGE_LETTER_B_BIG;
-			break;
-		case 'c':
-			letterImage = IMAGE_LETTER_C_BIG;
-			break;
-		case 'd':
-			letterImage = IMAGE_LETTER_D_BIG;
-			break;
-		case 'e':
-			letterImage = IMAGE_LETTER_E_BIG;
-			break;
-		case 'f':
-			letterImage = IMAGE_LETTER_F_BIG;
-			break;
-		case 'g':
-			letterImage = IMAGE_LETTER_G_BIG;
-			break;
-		case 'h':
-			letterImage = IMAGE_LETTER_H_BIG;
-			break;
-		case 'i':
-			letterImage = IMAGE_LETTER_I_BIG;
-			break;
-		case 'j':
-			letterImage = IMAGE_LETTER_J_BIG;
-			break;
-		case 'k':
-			letterImage = IMAGE_LETTER_K_BIG;
-			break;
-		case 'l':
-			letterImage = IMAGE_LETTER_L_BIG;
-			break;
-		case 'm':
-			letterImage = IMAGE_LETTER_M_BIG;
-			break;
-		case 'n':
-			letterImage = IMAGE_LETTER_N_BIG;
-			break;
-		case 'o':
-			letterImage = IMAGE_LETTER_O_BIG;
-			break;
-		case 'p':
-			letterImage = IMAGE_LETTER_P_BIG;
-			break;
-		case 'q':
-			letterImage = IMAGE_LETTER_Q_BIG;
-			break;
-		case 'r':
-			letterImage = IMAGE_LETTER_R_BIG;
-			break;
-		case 's':
-			letterImage = IMAGE_LETTER_S_BIG;
-			break;
-		case 't':
-			letterImage = IMAGE_LETTER_T_BIG;
-			break;
-		case 'u':
-			letterImage = IMAGE_LETTER_U_BIG;
-			break;
-		case 'v':
-			letterImage = IMAGE_LETTER_V_BIG;
-			break;
-		case 'w':
-			letterImage = IMAGE_LETTER_W_BIG;
-			break;
-		case 'x':
-			letterImage = IMAGE_LETTER_X_BIG;
-			break;
-		case 'y':
-			letterImage = IMAGE_LETTER_Y_BIG;
-			break;
-		case 'z':
-			letterImage = IMAGE_LETTER_Z_BIG;
-			break;
-		}
-	}
-	else
-	{
-		switch (letter)
-		{
-		case 'a':
-			letterImage = IMAGE_LETTER_A_SMALL;
-			break;
-		case 'b':
-			letterImage = IMAGE_LETTER_B_SMALL;
-			break;
-		case 'c':
-			letterImage = IMAGE_LETTER_C_SMALL;
-			break;
-		case 'd':
-			letterImage = IMAGE_LETTER_D_SMALL;
-			break;
-		case 'e':
-			letterImage = IMAGE_LETTER_E_SMALL;
-			break;
-		case 'f':
-			letterImage = IMAGE_LETTER_F_SMALL;
-			break;
-		case 'g':
-			letterImage = IMAGE_LETTER_G_SMALL;
-			break;
-		case 'h':
-			letterImage = IMAGE_LETTER_H_SMALL;
-			break;
-		case 'i':
-			letterImage = IMAGE_LETTER_I_SMALL;
-			break;
-		case 'j':
-			letterImage = IMAGE_LETTER_J_SMALL;
-			break;
-		case 'k':
-			letterImage = IMAGE_LETTER_K_SMALL;
-			break;
-		case 'l':
-			letterImage = IMAGE_LETTER_L_SMALL;
-			break;
-		case 'm':
-			letterImage = IMAGE_LETTER_M_SMALL;
-			break;
-		case 'n':
-			letterImage = IMAGE_LETTER_N_SMALL;
-			break;
-		case 'o':
-			letterImage = IMAGE_LETTER_O_SMALL;
-			break;
-		case 'p':
-			letterImage = IMAGE_LETTER_P_SMALL;
-			break;
-		case 'q':
-			letterImage = IMAGE_LETTER_Q_SMALL;
-			break;
-		case 'r':
-			letterImage = IMAGE_LETTER_R_SMALL;
-			break;
-		case 's':
-			letterImage = IMAGE_LETTER_S_SMALL;
-			break;
-		case 't':
-			letterImage = IMAGE_LETTER_T_SMALL;
-			break;
-		case 'u':
-			letterImage = IMAGE_LETTER_U_SMALL;
-			break;
-		case 'v':
-			letterImage = IMAGE_LETTER_V_SMALL;
-			break;
-		case 'w':
-			letterImage = IMAGE_LETTER_W_SMALL;
-			break;
-		case 'x':
-			letterImage = IMAGE_LETTER_X_SMALL;
-			break;
-		case 'y':
-			letterImage = IMAGE_LETTER_Y_SMALL;
-			break;
-		case 'z':
-			letterImage = IMAGE_LETTER_Z_SMALL;
-			break;
-		}
-	}
-
-	return letterImage;
 }

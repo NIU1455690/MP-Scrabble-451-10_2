@@ -7,15 +7,15 @@
 //
 
 #include "ScrabbleGame.h"
-#include "../Scrabble_Defs.h"
-
-#include "../GraphicManager.h"
 
 ScrabbleGame::ScrabbleGame()
 {
 	m_lettersBag = LettersBag();
 	m_board = Board();
 	m_currentPlayer = 0;
+	m_currentPoints = 0;
+	m_passedTurns = 0;
+	m_wordResultError = false;
 
 	// Inicialització jugadors i fitxes
 	for (int i = 0; i < NUM_PLAYERS; i++)
@@ -26,9 +26,9 @@ ScrabbleGame::ScrabbleGame()
 
 	// Inicialització botons
 	int btn_size_w = 139;
-	int btn_size_h = 100;
+	int btn_size_h = 100; 
 	int btn_pos_x = SCREEN_SIZE_X * 0.5 - btn_size_w * 0.5;
-	int btn_pos_y = SCREEN_SIZE_Y - btn_size_h;
+	int btn_pos_y = SCREEN_SIZE_Y - btn_size_h; 
 	int btn_recall_pos_x = btn_pos_x - btn_size_w * 0.75;
 	int btn_shuffle_pos_x = btn_pos_x + btn_size_w;
 
@@ -36,8 +36,7 @@ ScrabbleGame::ScrabbleGame()
 	m_buttonShuffle = Button(IMAGE_BUTTON_SHUFFLE_NORMAL, IMAGE_BUTTON_SHUFFLE_PRESSED, btn_shuffle_pos_x, btn_pos_y, btn_size_w, btn_size_h);
 	m_buttonSend = Button(IMAGE_BUTTON_SEND_NORMAL, IMAGE_BUTTON_SEND_PRESSED, btn_pos_x, btn_pos_y, btn_size_w, btn_size_h);
 	m_buttonPass = Button(IMAGE_BUTTON_PASS_NORMAL, IMAGE_BUTTON_PASS_PRESSED, btn_pos_x, btn_pos_y, btn_size_w, btn_size_h);
-	btn_isPressed = false;
-	draw_tiles = false;
+	m_tilePlayed = false;
 }
 
 ScrabbleGame::~ScrabbleGame() {
@@ -45,125 +44,181 @@ ScrabbleGame::~ScrabbleGame() {
 }
 
 void ScrabbleGame::updateAndRender(int mousePosX, int mousePosY, bool mouseStatus) {
-
-	//--------------------------------------------------------------
-	//TODO 1: Interactuar amb la crida de pintar images (sprites).
-	//--------------------------------------------------------------
-
-	//TODO 1.1 Afegir l'include de GraphicManager --> #include "../GraphicManager.h"
-
-	//TODO 1.2 Fer la crida de pintar sprite --> GraphicManager::getInstance()->drawSprite(image, posX, posY);
-	//	    Per començar podem cridar el drawSprite amb els params --> (IMAGE_BOARD,0,0)
-
-	//GraphicManager::getInstance()->drawSprite(IMAGE_BOARD, int(SCREEN_SIZE_X * 0.5 - BOARD_SIZE * 0.5), 40);
-	//TODO 1.3 Reescriure la crida de pintar el IMAGE_BOARD però que estigui centrat en l'eix X i a 40 píxels de l'eix Y
-	//		Podeu fer servir la constant BOARD_SIZE definida a Scrabble_Defs.h
-	//          SCREEN_SIZE_X (tenim aquesta constant que definexi el width de la pantalla)
-	//  (0,0) ----------------> X+ 
-	//    |
-	//    |
-	//    |
-	//    v
-	//    Y+ 
-	// SCREEN_SIZE_Y (tenim aquesta altre constant que defineixi el height de la pantalla)
-
-
-	//TODO 1.4: Us anirà molt bé definir en el Scrabble_Defs.h dos constants BOARD_POS_X, BOARD_POS_Y i refer la 
-	//		crida anterior. Reutilitzareu diverses vegades aquestes constants. 
-
-
-
-	//TODO 1.5: Cridar el sprite IMAGE_BACKGROUND. Aquest ocupa tota la pantalla i bàsicament és de color blau.
-	//			El podem cridar utilitzant la posició inicial 0,0.
-
-
-
-	//TODO 1.6: Fixeu-vos que el sprite del board ha desaparegut. Això ha passat ja que l'última crida de drawSprite
-	//			queda per sobre de l'anterior. Reescriure l'ordre de pintat per tal que el board estigui després del
-	//			background.
-
-
-
-
-	//TODO 1.7: Anem a pintar la imatge de la tile 'A' (IMAGE_LETTER_A_SMALL)
-	//			Recordeu que podeu utilitzar les constants definides en Scrabble_Defs.h --> 
-	//			BOARD_POS_X: posició inicial del board en l'eix X
-	//			BOARD_POS_Y: posició inicial del board en l'eix Y
-	//			BOARD_TILE_SIZE: Mida de la tile (tant per width com per height)
-	//			BOARD_COLS_AND_ROWS: Nombre de columnes i rows (és el mateix).
-
-	//--------------------------------------------------------------
-	//TODO 2: Interacció amb el mouse
-	//------------------------------------------
-
-	//TODO 2.1: Observeu que passa si poseu tot el codi del pintat de les tiles 'A' en un if(mouseStatus)
-
-
-
-	//TODO 2.2: Afegiu com a última crida del vostre codi la següent crida del GraphicManager-->
-	//			GraphicManager::getInstance()->drawFont(FONT_GREEN_30, 10, 10, 0.6, "Hello world!");
-	//			Recordeu que tota crida de drawSprite o drawFont segueix l'ordre de pintat. Si executem
-	//			aquesta crida de drawFont com a primera instrucció no es visualitzarà, ja que està per darrera
-	//			del background.
-
-
-
-	//TODO 2.3: Imprimiu les coordenades del mouse (us la passen per paràmetres), fent ús de drawFont.
-
-
-
-	//--------------------------------------------------------------
-	//TODO 3: Programar el codi per afegir un botó
-	//--------------------------------------------
-	//Per no liar-nos amb el click del mouse, treiem el pintat dels tiles respecte l'estat del botó del mouse.
-	//TODO 3.1: - Programar un botó fent ús de les imatges 
-	//			    IMAGE_BUTTON_SEND_NORMAL: per dibuixar la seva representació del botó quan el mouse no està pressionant dintre de la seva zona
-	//			    IMAGE_BUTTON_SEND_PRESSED: per dibuixar la representació del botó quan el mouse està pressionant dintre de la seva zona
-	//			- Haureu de fer servir una variable per saber en quin estat està el mouse respecte el botó.
-	//			- Podeu fer servir les següents coordenades pel botó-->
-	//			    int btn_size_w = 139;
-	//			    int btn_size_h = 100;
-	//			    int btn_pos_x = SCREEN_SIZE_X*0.5 - btn_size_w*0.5;
-	//			    int btn_pos_y = SCREEN_SIZE_Y - btn_size_h;
-	//			- Heu de fer que es produeixi una acció al prémer en el botó --> pintar/deixar de pintar les lletres
-	//				- Acció es produeix quan entrem en la zona del botó i passem d'estar apretant el botó de mouse a no estar-hi
-	//
 	
+	// Dibujar background y board
 	GraphicManager::getInstance()->drawSprite(IMAGE_BACKGROUND, 0, 0);
 	GraphicManager::getInstance()->drawSprite(IMAGE_BOARD, BOARD_POS_X, BOARD_POS_Y);
 
-	if (draw_tiles)
+	if (!m_endedGame)
 	{
+		//////////////////////////////////////////////////////////////////////////////////// RENDERS
+
+
+		// Render fichas jugador
+		m_players[m_currentPlayer].renderTiles();
+
+		// Render botones
+		m_buttonRecall.render();
+		m_buttonShuffle.render();
+
+		// Mensajes
+		string playerMessage = "Player turn: " + to_string(m_currentPlayer + 1);
+		string playerPoints;
+		for (int i = 0; i < NUM_PLAYERS; i++)
+		{
+			playerPoints = "Score Player " + to_string(i + 1) + " = " + to_string(m_players[i].getScore());
+			GraphicManager::getInstance()->drawFont(FONT_WHITE_30, 10, BOARD_POS_Y + BOARD_SIZE + 100 + 35 * i, 0.6, playerPoints);
+
+		}
+		GraphicManager::getInstance()->drawFont(FONT_WHITE_30, 10, 10, 0.6, playerMessage); // Turno jugador
+
+		//////////////////////////////////////////////////////////////////////////////////// FUNCIONALIDAD
 		int posX = BOARD_POS_X;
 		int posY = BOARD_POS_Y;
-		for (int i = 0; i < BOARD_COLS_AND_ROWS; i++)
+
+		for (int x = 0; x < BOARD_COLS_AND_ROWS; x++)
 		{
-			for (int j = 0; j < BOARD_COLS_AND_ROWS; j++)
+			for (int y = 0; y < BOARD_COLS_AND_ROWS; y++)
 			{
-				GraphicManager::getInstance()->drawSprite(IMAGE_LETTER_A_SMALL, posX, posY);
+				BoardPosition bp = BoardPosition(y, x);
+				if (!m_board.isTileEmpty(bp))
+				{
+					IMAGE_NAME letterImage = letterToImageName(m_board.getLetterFromTile(bp), false);
+					GraphicManager::getInstance()->drawSprite(letterImage, posX, posY);
+				}
 				posX += BOARD_TILE_SIZE;
 			}
 			posY += BOARD_TILE_SIZE;
 			posX = BOARD_POS_X;
 		}
+
+		if (m_tilePlayed) // Mostrar pass o send
+		{
+			m_buttonSend.render();
+			if (m_buttonSend.getState() != PRESSED)
+			{
+				m_buttonSend.setState(NORMAL);
+			}
+			m_buttonPass.setState(NONE);
+		}
+		else
+		{
+
+			m_buttonPass.render();
+			if (m_buttonPass.getState() != PRESSED)
+			{
+				m_buttonPass.setState(NORMAL);
+			}
+			m_buttonSend.setState(NONE);
+
+		}
+
+		m_tilePlayed = m_players[m_currentPlayer].updateTiles(mousePosX, mousePosY, mouseStatus, m_board);
+
+		m_currentPoints = 0;
+		if (m_tilePlayed)
+		{
+			// Estado jugada actual del jugador
+			m_currentPoints = m_players[m_currentPlayer].getScore();
+			CurrentWordResult wordResult;
+			m_wordResultError = true;
+			wordResult = m_board.checkCurrentWord(m_currentPoints);
+			string wordResultMessage;
+
+			switch (wordResult)
+			{
+			case ALL_CORRECT:
+				m_wordResultError = false;
+				wordResultMessage = "Points: " + to_string(m_currentPoints);
+				break;
+			case INVALID_NOT_ALIGNED:
+				wordResultMessage = "Tiles must be vertically or horizontally aligned and together";
+				break;
+			case INVALID_NOT_CONNECTION:
+				wordResultMessage = "At least one letter must be next to the rest of the words";
+				break;
+			case INVALID_START_NOT_IN_CENTER:
+				wordResultMessage = "You have to start using the center position";
+				break;
+			case INVALID_WORD_OF_ONE_LETTER:
+				wordResultMessage = "Only words of two or more letters";
+				break;
+			case INVALID_WORDS_NOT_IN_DICTIONARY:
+				wordResultMessage = "The new words are not in the dictionary";
+				break;
+			default:
+				break;
+			}
+
+			if (m_wordResultError) // Puntos o error en la jugada
+			{
+				GraphicManager::getInstance()->drawFont(FONT_RED_30, 150, 10, 0.6, wordResultMessage);
+			}
+			else
+			{
+				GraphicManager::getInstance()->drawFont(FONT_GREEN_30, 150, 10, 0.6, wordResultMessage);
+			}
+		}
+
+
+
+		//////////////////////////////////////////////////////////////////////////////////// UPDATES
+
+		if (m_buttonPass.update(mousePosX, mousePosY, mouseStatus)) // Pass presionado
+		{
+			nextTurn();
+			m_board.removeCurrentWord();
+			m_passedTurns++;
+			if (m_passedTurns == NUM_PLAYERS)
+			{
+				m_endedGame = true;
+			}
+		}
+
+		if (m_buttonSend.update(mousePosX, mousePosY, mouseStatus)) // Send presionado
+		{
+			if (!m_wordResultError)
+			{
+				m_players[m_currentPlayer].setScore(m_players[m_currentPlayer].getScore() + m_currentPoints);
+				m_board.sendCurrentWordToBoard();
+				nextTurn();
+				m_passedTurns = 0;
+			}
+		}
+
+		if (m_buttonShuffle.update(mousePosX, mousePosY, mouseStatus)) // Shuffle presionado
+		{
+			m_players[m_currentPlayer].reOrder();
+		}
+
+		if (m_buttonRecall.update(mousePosX, mousePosY, mouseStatus)) // Recall presionado
+		{
+			m_players[m_currentPlayer].reCallTiles(m_board);
+			m_board.removeCurrentWord();
+		}
+		
+		string msg = "PosX : " + to_string(mousePosX) + "    " + "PosY : " + to_string(mousePosY);
+		GraphicManager::getInstance()->drawFont(FONT_WHITE_30, 610, 10, 0.4, msg);
+
 	}
-	std::string msg = "PosX: " + to_string(mousePosX) + ", PosY: " + to_string(mousePosY);
-	GraphicManager::getInstance()->drawFont(FONT_WHITE_30, 10, 10, 0.6, msg);
-
-	m_buttonRecall.render();
-	m_buttonShuffle.render();
-	m_buttonSend.render();
-	
-	m_buttonRecall.update(mousePosX, mousePosY, mouseStatus);
-	m_buttonShuffle.update(mousePosX, mousePosY, mouseStatus);
-
-	if (m_buttonSend.update(mousePosX, mousePosY, mouseStatus)) 
+	else
 	{
-		draw_tiles = !draw_tiles;
-	}
+		// Winner
+		string msg;
+		int playerWon = winner();
 
-	m_players[m_currentPlayer].renderTiles();
-	m_players[m_currentPlayer].updateTiles(mousePosX, mousePosY, mouseStatus);
+		if (playerWon == -1)
+		{
+			msg = "The game ended! There are no winners :(";
+			GraphicManager::getInstance()->drawFont(FONT_WHITE_30, ((BOARD_POS_X + BOARD_SIZE) / 2) - 250, BOARD_POS_Y + BOARD_SIZE + 100, 1, msg);
+		}
+		else
+		{
+			msg = "The game ended! Winner: Player " + to_string(playerWon + 1);
+			GraphicManager::getInstance()->drawFont(FONT_WHITE_30, ((BOARD_POS_X + BOARD_SIZE) / 2) - 190, BOARD_POS_Y + BOARD_SIZE + 100, 1, msg);
+		}
+		
+	}
 }
 
 void ScrabbleGame::nextTurn()
@@ -176,4 +231,32 @@ void ScrabbleGame::nextTurn()
 	{
 		m_currentPlayer++;
 	}
+	m_endedGame = m_players[m_currentPlayer].drawTiles(m_lettersBag);
+}
+
+int ScrabbleGame::winner()
+{
+	int winner = 0;
+	int maxPoints = m_players[winner].getScore();
+	bool draw = false;
+
+	for (int i = 1; i < NUM_PLAYERS; i++)
+	{
+		if (m_players[i].getScore() > maxPoints)
+		{
+			winner = i;
+			draw = false;
+		}
+		else if (m_players[i].getScore() == maxPoints)
+		{
+			draw = true;
+		}
+	}
+
+	if (draw)
+	{
+		winner = -1;
+	}
+	
+	return winner;
 }

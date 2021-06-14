@@ -6,8 +6,10 @@
 #ifndef Player_h
 #define Player_h
 
+#include "Board.h"
 #include "PlayerTile.h"
 #include "LettersBag.h"
+#include "AuxFuncs.h"
 #include "../GraphicManager.h"
 
 using namespace std;
@@ -19,10 +21,15 @@ class Player
 public:
 	Player() { m_score = 0; m_nTiles = 0; m_movingLetter = false; }
 	Player(LettersBag& lettersBag);
+	int const getScore() { return m_score; }
+	int randomInRange(int minimo, int maximo);
 	void setScore(int score) { m_score = score; }
 	void renderTiles();
-	void updateTiles(int mousePosX, int mousePosY, bool mouseIsPressed);
-	IMAGE_NAME letterToImageName(char letter, bool big);
+	void reOrder();
+	void reCallTiles(Board& board);
+	bool tileInBoard();
+	bool drawTiles(LettersBag& lettersBag);
+	bool updateTiles(int mousePosX, int mousePosY, bool mouseIsPressed, Board& board);
 private:
 	int m_score;
 	int m_nTiles;

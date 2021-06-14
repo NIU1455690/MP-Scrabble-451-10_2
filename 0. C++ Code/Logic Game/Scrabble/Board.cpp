@@ -14,7 +14,7 @@ using namespace std;
 Board::Board()
 {
 	ifstream fichero;
-	string nombreFichero = "../../1. Resources/data/Configuration/board.txt";
+	string nombreFichero = "data/Configuration/board.txt";
 	fichero.open(nombreFichero);
 	
 	if (fichero.is_open())
@@ -41,8 +41,6 @@ PositionResult Board::setTile(Tile& tile, const BoardPosition& boardPos)
 {
 	PositionResult resultado = VALID_POSITION;
 
-	cout << "===> setTile(): " << tile.getLetter() << endl;
-
 	int x = boardPos.getRow();
 	int y = boardPos.getCol();
 
@@ -52,7 +50,41 @@ PositionResult Board::setTile(Tile& tile, const BoardPosition& boardPos)
 		{
 			m_cells[x][y].setTile(tile);
 			m_cells[x][y].setEmpty(false);
-			m_currentWord.push_back(boardPos);
+
+			bool posicionCorrecta = false;
+			int i = 0;
+			while (!posicionCorrecta && i < m_currentWord.size())
+			{
+				if (boardPos.getRow() < m_currentWord[i].getRow() || (boardPos.getRow() == m_currentWord[i].getRow() && boardPos.getCol() < m_currentWord[i].getCol())) // Comprovamos orden de las letras e insertamos en posicion correcta
+				{
+					if (!(m_currentWord[i] == boardPos))
+					{
+						posicionCorrecta = true;
+						m_currentWord.insert(m_currentWord.begin() + i, boardPos);
+					}
+				}
+				else
+				{
+					i++;
+				}
+			}
+			
+			if (!posicionCorrecta)
+			{
+				cout << "--------------------------------- insert ----------------------------";
+				if (m_currentWord.size() > 0)
+				{
+					if (!(m_currentWord[m_currentWord.size() - 1] == boardPos))
+					{
+						m_currentWord.push_back(boardPos);
+					}
+				}
+				else
+				{
+					m_currentWord.push_back(boardPos);
+				}
+				
+			}
 		}
 		else
 		{
@@ -73,100 +105,116 @@ CurrentWordResult Board::checkCurrentWord(int& points)
 	points = 0;
 	string palabra = "";
 
-	if (m_currentWord.size() == 1) // 1 letra -> paramos
+	if (m_currentWord.size() != 0)
 	{
-		palabraResultante = INVALID_WORD_OF_ONE_LETTER;
-	}
-	else // Más de 1 letra -> seguimos
-	{
-		bool casillaCentral = false;
-
-		if (m_emptyBoard) // Primera jugada -> miramos casilla central
+		if (m_currentWord.size() == 1 && m_emptyBoard) // 1 letra -> paramos
 		{
-			int i = 0;
-			while (!casillaCentral && i < m_currentWord.size())
-			{
-				if (m_currentWord[i].getRow() == 7 && m_currentWord[i].getCol() == 7) casillaCentral = true;
-				else i++;
-			}
-
-			if (!casillaCentral) palabraResultante = INVALID_START_NOT_IN_CENTER;
+			palabraResultante = INVALID_WORD_OF_ONE_LETTER;
 		}
+		else // Más de 1 letra -> seguimos
+		{
+			bool casillaCentral = false;
 
-		if (!m_emptyBoard || casillaCentral) { // Si no es la primera jugada o ha pasado el test de casilla central, seguimos
-
-			Alignment alineacion = currentWordAlignment();
-
-			if (alineacion == NOT_ALIGNED) // No alineada -> paramos
+			if (m_emptyBoard) // Primera jugada -> miramos casilla central
 			{
-				palabraResultante = INVALID_NOT_ALIGNED;
+				int i = 0;
+				while (!casillaCentral && i < m_currentWord.size())
+				{
+					if (m_currentWord[i].getRow() == 7 && m_currentWord[i].getCol() == 7) casillaCentral = true;
+					else i++;
+				}
+
+				if (!casillaCentral) palabraResultante = INVALID_START_NOT_IN_CENTER;
 			}
-			else // Alineada -> seguimos
-			{
-				int min, max;
-				bool interseccion = false;
-				bool consecutiva = currentWordConsecutive(alineacion, min, max, interseccion);
 
-				if (!consecutiva) // No consecutiva -> paramos
+			if (!m_emptyBoard || casillaCentral) { // Si no es la primera jugada o ha pasado el test de casilla central, seguimos
+
+				Alignment alineacion = currentWordAlignment();
+
+				if (alineacion == NOT_ALIGNED) // No alineada -> paramos
 				{
 					palabraResultante = INVALID_NOT_ALIGNED;
 				}
-				else // Consecutiva -> seguimos
+				else // Alineada -> seguimos
 				{
-					if (!m_emptyBoard) // Si ya hay palabras en el tablero, mirar conexiones
+					int min, max;
+					bool interseccion = false;
+					bool consecutiva = currentWordConsecutive(alineacion, min, max, interseccion);
+
+					if (!consecutiva) // No consecutiva -> paramos
 					{
-						vector<BoardPosition> conexiones;
-						bool conectada = currentWordConnected(alineacion, min, max, conexiones, interseccion);
-						if (!conectada) // Si no está conectada, no seguimos
+						palabraResultante = INVALID_NOT_ALIGNED;
+					}
+					else // Consecutiva -> seguimos
+					{
+						if (!m_emptyBoard) // Si ya hay palabras en el tablero, mirar conexiones
 						{
-							palabraResultante = INVALID_NOT_CONNECTION;
-						}
-						else // Si hay conexión, seguimos
-						{
-							newWords(alineacion, min, max, conexiones); // Guardamos todas las combinaciones creadas
+							vector<BoardPosition> conexiones;
+							bool conectada = currentWordConnected(alineacion, min, max, conexiones);
+							if (!conectada) // Si no está conectada, no seguimos
+							{
+								if (!interseccion)
+								{
+									palabraResultante = INVALID_NOT_CONNECTION;
+								}
+								else
+								{
+									newWords(alineacion, min, max, conexiones); // Guardamos todas las combinaciones creadas
+								}
+							}
+							else // Si hay conexión, seguimos
+							{
+								newWords(alineacion, min, max, conexiones); // Guardamos todas las combinaciones creadas
+							}
 						}
 					}
 				}
 			}
+
+			if (palabraResultante == ALL_CORRECT) // Más de una letra, alineada y consecutiva -> comprovamos diccionario
+			{
+				bool valid = true;
+				palabra = readWordFromVector(m_currentWord);
+
+				if (!m_dictionary.check(palabra))
+				{
+					valid = false;
+				}
+				else if (!m_emptyBoard) // Si palabra actual correcta -> Miramos palabras conectadas si no es primera jugada
+				{
+					int i = 0;
+					while (valid && i < m_connectedWords.size())
+					{
+						palabra = readWordFromVector(m_connectedWords[i]);
+						if (!m_dictionary.check(palabra))
+						{
+							valid = false;
+						}
+						else {
+							i++;
+						}
+					}
+				}
+
+				if (!valid) // Si alguna palabra no está en el diccionario: error
+				{
+					palabraResultante = INVALID_WORDS_NOT_IN_DICTIONARY;
+				}
+				else // Todo correcto -> calculamos puntos
+				{
+					points = pointsWords();
+				}
+			}
+
 		}
 
-		if (palabraResultante == ALL_CORRECT) // Más de una letra, alineada y consecutiva -> comprovamos diccionario
+		cout << "=====> m_currentWord: " << readWordFromVector(m_currentWord) << endl;;
+		for (int i = 0; i < m_currentWord.size(); i++)
 		{
-			bool valid = true;
-			palabra = readWordFromVector(m_currentWord);
-
-			if (!m_dictionary.check(palabra))
-			{
-				valid = false;
-			} 
-			else if (!m_emptyBoard) // Si palabra actual correcta -> Miramos palabras conectadas si no es primera jugada
-			{
-				int i = 0;
-				while (valid && i < m_connectedWords.size()) 
-				{
-					palabra = readWordFromVector(m_connectedWords[i]);
-					if (!m_dictionary.check(palabra))
-					{
-						valid = false;
-					}
-					else {
-						i++;
-					}
-				}
-			}
-
-			if (!valid) // Si alguna palabra no está en el diccionario: error
-			{
-				palabraResultante = INVALID_WORDS_NOT_IN_DICTIONARY;
-			}
-			else // Todo correcto -> calculamos puntos
-			{
-				points = pointsWords();
-			}
+			cout << m_currentWord[i].getRow() << "," << m_currentWord[i].getCol() << endl;
 		}
-
 	}
-
+	
 	return palabraResultante;
 }
 
@@ -210,7 +258,11 @@ void Board::newWords(Alignment& alineacion, int& min, int& max, vector<BoardPosi
 					{
 						col--;
 						BoardPosition bp = BoardPosition(col, fila);
-						m_currentWord.insert(m_currentWord.begin(), bp); // Insertar por inicio
+						if (!(m_currentWord[0] == bp))
+						{
+							m_currentWord.insert(m_currentWord.begin(), bp); // Insertar por inicio
+						}
+						
 					}
 					else
 					{
@@ -227,7 +279,10 @@ void Board::newWords(Alignment& alineacion, int& min, int& max, vector<BoardPosi
 					{
 						col++;
 						BoardPosition bp = BoardPosition(col, fila);
-						m_currentWord.push_back(bp); // Insertar al final
+						if (!(m_currentWord[m_currentWord.size() - 1] == bp))
+						{
+							m_currentWord.push_back(bp); // Insertar al final
+						}
 					}
 					else
 					{
@@ -279,7 +334,18 @@ void Board::newWords(Alignment& alineacion, int& min, int& max, vector<BoardPosi
 					newWord.push_back(bp);
 				}
 
-				m_connectedWords.push_back(newWord); // Añadir nuestra palabra al vector de palabras
+				if (m_connectedWords.size() > 0)
+				{
+					if (!(m_connectedWords[m_connectedWords.size() - 1] == newWord))
+					{
+						m_connectedWords.push_back(newWord); // Añadir nuestra palabra al vector de palabras
+					}
+				}
+				else
+				{
+					m_connectedWords.push_back(newWord);
+				}
+				
 			}
 		}
 	}
@@ -302,7 +368,10 @@ void Board::newWords(Alignment& alineacion, int& min, int& max, vector<BoardPosi
 					{
 						fila--;
 						BoardPosition bp = BoardPosition(col, fila);
-						m_currentWord.insert(m_currentWord.begin(), bp); // Insertar por inicio
+						if (!(m_currentWord[0] == bp))
+						{
+							m_currentWord.insert(m_currentWord.begin(), bp); // Insertar por inicio
+						}
 					}
 					else
 					{
@@ -319,7 +388,11 @@ void Board::newWords(Alignment& alineacion, int& min, int& max, vector<BoardPosi
 					{
 						fila++;
 						BoardPosition bp = BoardPosition(col, fila);
-						m_currentWord.push_back(bp); // Insertar al final
+						if (!(m_currentWord[m_currentWord.size()-1] == bp))
+						{
+							m_currentWord.push_back(bp); // Insertar al final
+						}
+						
 					}
 					else
 					{
@@ -372,7 +445,17 @@ void Board::newWords(Alignment& alineacion, int& min, int& max, vector<BoardPosi
 					newWord.push_back(bp);
 				}
 
-				m_connectedWords.push_back(newWord); // Añadir nuestra palabra al vector de palabras
+				if (m_connectedWords.size() > 0)
+				{
+					if (!(m_connectedWords[m_connectedWords.size() - 1] == newWord))
+					{
+						m_connectedWords.push_back(newWord); // Añadir nuestra palabra al vector de palabras
+					}
+				}
+				else
+				{
+					m_connectedWords.push_back(newWord);
+				}
 			}
 		}
 	}
@@ -484,13 +567,30 @@ Alignment Board::currentWordAlignment()
 		}
 	}
 
-	if (alineadaHorizontal)
+	if (i == 1)
 	{
-		alineacion = HORIZONTAL;
+		if (m_cells[ultimaFila-1][ultimaCol].getTilePlayed() || m_cells[ultimaFila + 1][ultimaCol].getTilePlayed())
+		{
+			alineacion = VERTICAL;
+		}
+		else if (m_cells[ultimaFila][ultimaCol - 1].getTilePlayed() || m_cells[ultimaFila][ultimaCol + 1].getTilePlayed())
+		{
+			alineacion = HORIZONTAL;
+		} 
+
+		return alineacion;
 	}
-	else if (alineadaVertical)
+
+	if (alineada)
 	{
-		alineacion = VERTICAL;
+		if (alineadaHorizontal)
+		{
+			alineacion = HORIZONTAL;
+		}
+		else if (alineadaVertical)
+		{
+			alineacion = VERTICAL;
+		}
 	}
 
 	return alineacion;
@@ -529,16 +629,29 @@ bool Board::currentWordConsecutive(Alignment &alineacion, int& min, int&max, boo
 			}
 			else
 			{
-				if (m_cells[fila][min + i].getTilePlayed()) // Si hay una ficha vieja, se añade a la currentWord
+				i++;
+			}
+		}
+
+		if (consecutiva)
+		{
+			int j = 0;
+			for (int i = min; i <= max; i++)
+			{
+				if (m_cells[fila][i].getTilePlayed()) // Si hay una ficha vieja, se añade a la currentWord
 				{
-					BoardPosition bp = BoardPosition(min + i, fila);
-					m_currentWord.insert(m_currentWord.begin() + i, bp);
+					BoardPosition bp = BoardPosition(i, fila);
+					if (!(m_currentWord[j] == bp))
+					{
+						m_currentWord.insert(m_currentWord.begin() + j, bp);
+					}
+
 					if (!interseccion)
 					{
 						interseccion = true;
 					}
 				}
-				i++;
+				j++;
 			}
 		}
 	}
@@ -570,16 +683,28 @@ bool Board::currentWordConsecutive(Alignment &alineacion, int& min, int&max, boo
 			}
 			else
 			{
-				if (m_cells[min + i][col].getTilePlayed()) // Si hay una ficha vieja, se añade a la currentWord
+				i++;
+			}
+		}
+
+		if (consecutiva)
+		{
+			int j = 0;
+			for (int i = min; i <= max; i++)
+			{
+				if (m_cells[i][col].getTilePlayed()) // Si hay una ficha vieja, se añade a la currentWord
 				{
-					BoardPosition bp = BoardPosition(col, min + i);
-					m_currentWord.insert(m_currentWord.begin() + i, bp);
+					BoardPosition bp = BoardPosition(col, i);
+					if (!(m_currentWord[j] == bp))
+					{
+						m_currentWord.insert(m_currentWord.begin() + j, bp);
+					}
 					if (!interseccion)
 					{
 						interseccion = true;
 					}
 				}
-				i++;
+				j++;
 			}
 		}
 	}
@@ -587,156 +712,153 @@ bool Board::currentWordConsecutive(Alignment &alineacion, int& min, int&max, boo
 	return consecutiva;
 }
 
-bool Board::currentWordConnected(Alignment& alineacion, int min, int max, vector<BoardPosition>& conexiones, bool conectada)
+bool Board::currentWordConnected(Alignment& alineacion, int min, int max, vector<BoardPosition>& conexiones)
 {
 	// No guardaremos las conexiones redundantes (si hay conexión a un lado de la palabra, nos da igual el otro)
 	// Esto es porque si hay conexión en una dirección, tanto arriba como abajo, comprobaremos de
 	// nuevo el nuevo mínimo y el nuevo máximo en esa dirección igualmente.
+	bool conectada = false;
 	bool direccionEncontrada = false;
 	int fila, col;
 
-	if (!conectada)
+	if (alineacion == HORIZONTAL)
 	{
-		if (alineacion == HORIZONTAL)
+		fila = m_currentWord[0].getRow(); // Horizontal -> fila constante
+		for (int i = min; i <= max; i++) // Recorremos todas las letras de la palabra (columnas)
 		{
-			fila = m_currentWord[0].getRow(); // Horizontal -> fila constante
-			for (int i = min; i <= max; i++) // Recorremos todas las letras de la palabra (columnas)
+			if (!m_cells[fila][i].getTilePlayed()) // Comprovamos conexiones si no es una ficha ya jugada
 			{
-				if (!m_cells[fila][i].getTilePlayed()) // Comprovamos conexiones si no es una ficha ya jugada
+				if (fila > 0) // Miramos si hay conexion arriba siempre que esté en los límites
 				{
-					if (fila > 0) // Miramos si hay conexion arriba siempre que esté en los límites
+					if (!m_cells[fila - 1][i].getEmpty())
 					{
-						if (!m_cells[fila - 1][i].getEmpty())
+						BoardPosition bp = BoardPosition(i, fila - 1);
+						conexiones.push_back(bp);
+						direccionEncontrada = true;
+
+						if (!conectada)
 						{
-							BoardPosition bp = BoardPosition(i, fila - 1);
-							conexiones.push_back(bp);
-							direccionEncontrada = true;
-
-							if (!conectada)
-							{
-								conectada = true;
-							}
-						}
-					}
-
-					if (fila < BOARD_COLS_AND_ROWS - 1 && !direccionEncontrada) // Si hay conexion abajo si está en los límites y no hay arriba
-					{
-						if (!m_cells[fila + 1][i].getEmpty())
-						{
-							BoardPosition bp = BoardPosition(i, fila + 1);
-							conexiones.push_back(bp);
-
-							if (!conectada)
-							{
-								conectada = true;
-							}
+							conectada = true;
 						}
 					}
 				}
-			}
 
-			direccionEncontrada = false;
-
-			if (min > 0) // Miramos si hay conexion en la misma direccion a la izquierda siempre que esté en los límites
-			{
-				if (!m_cells[fila][min - 1].getEmpty())
+				if (fila < BOARD_COLS_AND_ROWS - 1 && !direccionEncontrada) // Si hay conexion abajo si está en los límites y no hay arriba
 				{
-					BoardPosition bp = BoardPosition(min - 1, fila);
-					conexiones.push_back(bp);
-					direccionEncontrada = true;
-
-					if (!conectada)
+					if (!m_cells[fila + 1][i].getEmpty())
 					{
-						conectada = true;
-					}
-				}
-			}
+						BoardPosition bp = BoardPosition(i, fila + 1);
+						conexiones.push_back(bp);
 
-			if (max < BOARD_COLS_AND_ROWS - 1 && !direccionEncontrada) // Miramos misma direccion derecha siempre que esté en límites y no haya a la izquierda
-			{
-				if (!m_cells[fila][max + 1].getEmpty())
-				{
-					BoardPosition bp = BoardPosition(max + 1, fila);
-					conexiones.push_back(bp);
-
-					if (!conectada)
-					{
-						conectada = true;
-					}
-				}
-			}
-		}
-		else if (alineacion == VERTICAL)
-		{
-			col = m_currentWord[0].getCol(); // Vertical -> fila constante
-
-			for (int i = min; i <= max; i++) // Recorremos todas las letras de la palabra (filas)
-			{
-				if (!m_cells[i][col].getTilePlayed()) // Comprovamos conexiones si no es una ficha ya jugada
-				{
-					if (col > 0) // Miramos a la izquierda siempre que estemos en el límite
-					{
-						if (!m_cells[i][col - 1].getEmpty())
+						if (!conectada)
 						{
-							BoardPosition bp = BoardPosition(col - 1, i);
-							conexiones.push_back(bp);
-							direccionEncontrada = true;
-
-							if (!conectada)
-							{
-								conectada = true;
-							}
+							conectada = true;
 						}
-					}
-
-					if (col < BOARD_COLS_AND_ROWS - 1 && !direccionEncontrada) { // Miramos derecha mientras dentro límite y no haya en izquierda
-
-						if (!m_cells[i][col + 1].getEmpty())
-						{
-							BoardPosition bp = BoardPosition(col + 1, i);
-							conexiones.push_back(bp);
-
-							if (!conectada)
-							{
-								conectada = true;
-							}
-						}
-					}
-				}
-			}
-
-			direccionEncontrada = false;
-
-			if (min > 0) // Miramos en la misma direccion arriba mientras estemos en los límites
-			{
-				if (!m_cells[min - 1][col].getEmpty())
-				{
-					BoardPosition bp = BoardPosition(col, min - 1);
-					conexiones.push_back(bp);
-					direccionEncontrada = true;
-
-					if (!conectada)
-					{
-						conectada = true;
-					}
-				}
-			}
-
-			if (max < BOARD_COLS_AND_ROWS - 1 && !direccionEncontrada) // Misma dirección abajo mientras dentro límite y no haya arriba
-			{
-				if (!m_cells[max + 1][col].getEmpty())
-				{
-					BoardPosition bp = BoardPosition(col, max + 1);
-					conexiones.push_back(bp);
-
-					if (!conectada)
-					{
-						conectada = true;
 					}
 				}
 			}
 		}
 
+		direccionEncontrada = false;
+
+		if (min > 0) // Miramos si hay conexion en la misma direccion a la izquierda siempre que esté en los límites
+		{
+			if (!m_cells[fila][min - 1].getEmpty())
+			{
+				BoardPosition bp = BoardPosition(min - 1, fila);
+				conexiones.push_back(bp);
+				direccionEncontrada = true;
+
+				if (!conectada)
+				{
+					conectada = true;
+				}
+			}
+		}
+
+		if (max < BOARD_COLS_AND_ROWS - 1 && !direccionEncontrada) // Miramos misma direccion derecha siempre que esté en límites y no haya a la izquierda
+		{
+			if (!m_cells[fila][max + 1].getEmpty())
+			{
+				BoardPosition bp = BoardPosition(max + 1, fila);
+				conexiones.push_back(bp);
+
+				if (!conectada)
+				{
+					conectada = true;
+				}
+			}
+		}
+	}
+	else if (alineacion == VERTICAL)
+	{
+		col = m_currentWord[0].getCol(); // Vertical -> fila constante
+
+		for (int i = min; i <= max; i++) // Recorremos todas las letras de la palabra (filas)
+		{
+			if (!m_cells[i][col].getTilePlayed()) // Comprovamos conexiones si no es una ficha ya jugada
+			{
+				if (col > 0) // Miramos a la izquierda siempre que estemos en el límite
+				{
+					if (!m_cells[i][col - 1].getEmpty())
+					{
+						BoardPosition bp = BoardPosition(col - 1, i);
+						conexiones.push_back(bp);
+						direccionEncontrada = true;
+
+						if (!conectada)
+						{
+							conectada = true;
+						}
+					}
+				}
+
+				if (col < BOARD_COLS_AND_ROWS - 1 && !direccionEncontrada) { // Miramos derecha mientras dentro límite y no haya en izquierda
+
+					if (!m_cells[i][col + 1].getEmpty())
+					{
+						BoardPosition bp = BoardPosition(col + 1, i);
+						conexiones.push_back(bp);
+
+						if (!conectada)
+						{
+							conectada = true;
+						}
+					}
+				}
+			}
+		}
+
+		direccionEncontrada = false;
+
+		if (min > 0) // Miramos en la misma direccion arriba mientras estemos en los límites
+		{
+			if (!m_cells[min - 1][col].getEmpty())
+			{
+				BoardPosition bp = BoardPosition(col, min - 1);
+				conexiones.push_back(bp);
+				direccionEncontrada = true;
+
+				if (!conectada)
+				{
+					conectada = true;
+				}
+			}
+		}
+
+		if (max < BOARD_COLS_AND_ROWS - 1 && !direccionEncontrada) // Misma dirección abajo mientras dentro límite y no haya arriba
+		{
+			if (!m_cells[max + 1][col].getEmpty())
+			{
+				BoardPosition bp = BoardPosition(col, max + 1);
+				conexiones.push_back(bp);
+
+				if (!conectada)
+				{
+					conectada = true;
+				}
+			}
+		}
 	}
 	
 	return conectada;
@@ -778,4 +900,51 @@ void Board::removeCurrentWord()
 
 	m_currentWord.clear();
 	m_connectedWords.clear();
+}
+
+void Board::removeTile(BoardPosition& bp)
+{
+	Tile tile = Tile(' ', 0);
+	m_cells[bp.getRow()][bp.getCol()].setTile(tile);
+	m_cells[bp.getRow()][bp.getCol()].setEmpty(true);
+	m_cells[bp.getRow()][bp.getCol()].setTilePlayed(false);
+
+	bool encontrada = false;
+	int i = 0;
+	while (!encontrada && i < m_currentWord.size())
+	{
+		BoardPosition tilePos = BoardPosition(m_currentWord[i].getCol(), m_currentWord[i].getRow());
+		
+		if (tilePos == bp)
+		{
+			encontrada = true;
+			m_currentWord.erase(m_currentWord.begin() + i);
+		}
+		else
+		{
+			i++;
+		}
+	}
+
+	bool turnPlayedTile = false;
+	i = 0;
+	while (i < m_currentWord.size() && !turnPlayedTile)
+	{
+		if (!m_cells[m_currentWord[i].getRow()][m_currentWord[i].getCol()].getTilePlayed())
+		{
+			turnPlayedTile = true;
+		}
+		else
+		{
+			i++;
+		}
+	}
+
+	if (!turnPlayedTile)
+	{
+		m_currentWord.clear();
+	}
+
+	m_connectedWords.clear();
+
 }

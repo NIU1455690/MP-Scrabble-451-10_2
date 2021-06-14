@@ -11,7 +11,7 @@ using namespace std;
 
 Dictionary::Dictionary()
 {
-	string directorio = "../../1. Resources/data/Dictionaries/";
+	string directorio = "./data/Dictionaries/";
 	string nombreFichero;
 
 	for (int i = 0; i < NO_LANGUAGE; i++)

@@ -31,7 +31,7 @@ public:
     void setScoreEffect(ScoreEffect& efectoPuntuacion) { m_scoreEffect = efectoPuntuacion; }
     void setTile(Tile& casilla) { m_tile = casilla; }
     void setEmpty(bool vacio) { m_empty = vacio; }
-    void setTilePlayed(bool fichaJugada) { m_tilePlayed = fichaJugada; }
+    void setTilePlayed(bool tilePlayed) { m_tilePlayed = tilePlayed; }
 private:
     ScoreEffect m_scoreEffect;
     Tile m_tile;

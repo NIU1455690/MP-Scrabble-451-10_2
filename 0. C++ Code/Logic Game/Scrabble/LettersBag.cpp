@@ -52,11 +52,14 @@ Tile LettersBag::getLetter()
 	Tile tile;
 	int random;
 
-	srand(time(NULL));
-	random = (rand() % m_letters.size());
-	tile = m_letters[random];
+	if (m_letters.size() > 0)
+	{
+		srand(time(NULL));
+		random = (rand() % m_letters.size());
+		tile = m_letters[random];
 
-	m_letters.erase(m_letters.begin() + random);
-
+		m_letters.erase(m_letters.begin() + random);
+	}
+	
 	return tile;
 }

@@ -10,7 +10,7 @@
 #define ScrabbleDefs_h
 
 #include <vector>
-#include "BoardPosition.h"
+#include "Scrabble/BoardPosition.h"
 
 using namespace std;
 
@@ -32,6 +32,5 @@ const int BOARD_POS_Y = 40;
 
 const int BOARD_POS_X = SCREEN_SIZE_X * 0.5 - BOARD_SIZE * 0.5;
 const int BOARD_POS_Y = 40;
-
 
 #endif /* ScrabbleDefs_h */

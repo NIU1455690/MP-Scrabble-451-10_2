@@ -12,7 +12,7 @@ PlayerTile::PlayerTile()
 
 }
 
-PlayerTile::PlayerTile(const Tile& tile, int nTile)
+PlayerTile::PlayerTile(Tile& tile, int nTile)
 {
 	m_tile = tile;
 	m_nTile = nTile;

@@ -160,6 +160,7 @@
     <ClCompile Include="..\..\0. C++ Code\Graphic Lib\video.cpp" />
     <ClCompile Include="..\..\0. C++ Code\Logic Game\GraphicManager.cpp" />
     <ClCompile Include="..\..\0. C++ Code\Logic Game\main.cpp" />
+    <ClCompile Include="..\..\0. C++ Code\Logic Game\Scrabble\AuxFuncs.cpp" />
     <ClCompile Include="..\..\0. C++ Code\Logic Game\Scrabble\Board.cpp" />
     <ClCompile Include="..\..\0. C++ Code\Logic Game\Scrabble\Button.cpp" />
     <ClCompile Include="..\..\0. C++ Code\Logic Game\Scrabble\Cell.cpp" />
@@ -186,6 +187,7 @@
     <ClInclude Include="..\..\0. C++ Code\Graphic Lib\stb_vorbis.h" />
     <ClInclude Include="..\..\0. C++ Code\Graphic Lib\video.h" />
     <ClInclude Include="..\..\0. C++ Code\Logic Game\GraphicManager.h" />
+    <ClInclude Include="..\..\0. C++ Code\Logic Game\Scrabble\AuxFuncs.h" />
     <ClInclude Include="..\..\0. C++ Code\Logic Game\Scrabble\Board.h" />
     <ClInclude Include="..\..\0. C++ Code\Logic Game\Scrabble\BoardPosition.h" />
     <ClInclude Include="..\..\0. C++ Code\Logic Game\Scrabble\Button.h" />
